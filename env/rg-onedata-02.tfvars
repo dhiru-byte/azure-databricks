@@ -111,10 +111,8 @@ location_short_name    = "neu"
 
 # Generic tags
 tags = {
-  "costcenter"         = "5011-240011"
   "dtap value"         = "DEV"
   "gits servicenumber" = "9611"
-  "resource owner"     = "Erik Beckers"
 }
 
 # ## Service Principal credentials
