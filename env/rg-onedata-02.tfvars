@@ -112,7 +112,6 @@ location_short_name    = "neu"
 # Generic tags
 tags = {
   "dtap value"         = "DEV"
-  "gits servicenumber" = "9611"
 }
 
 # ## Service Principal credentials
