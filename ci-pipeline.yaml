@@ -1,0 +1,104 @@
+trigger:
+  - main
+
+pool:
+  vmImage: "ubuntu-22.04"
+
+steps:
+
+- task: CopyFiles@2
+  displayName: "Copying TF Configs"
+  inputs:
+    SourceFolder: " $(Build.SourcesDirectory)"
+    Contents: "**"
+    TargetFolder: "$(Build.ArtifactStagingDirectory}"
+    CleanTargetFolder: true
+
+- task: PublishBuildArtifacts@1
+  displayName: "Publish Artifact"
+  inputs:
+    PathtoPublish: "$(Build.ArtifactStagingDirectory}"
+    ArtifactName: "tf-artifacts"
+    publishLocation: "Container"
+
+# - task: InstallSSHKey@0
+#   displayName: 'Install an SSH key'
+#   inputs:
+#     knownHostsEntry: '$(git_ssh_known_hosts)' #Variable pulled in from key vault via key vault task above.
+#     sshPublicKey: '$(terraform-git-ssh-pub)' #Variable pulled in from key vault via key vault task above.
+#     sshPassphrase: '$(git_ssh_pass)' #Variable pulled in from key vault via key vault task above.
+#     sshKeySecureFile: 'terraform_rsa' #This was originally renamed from id_rsa and uploaded into secure files library on the project hosting our TF modules repo.
+      
+# - task: AzureKeyVault@2
+#   displayName: 'Azure Key Vault: kv-d-ndp-infrastructure (In RG rg-dataplatform-infrastructure)'
+#   inputs:
+#     azureSubscription: '$(service_principal_name)'
+#     KeyVaultName: '$(keyvault_name)'
+#     RunAsPreJob: true
+
+# - task: qetza.replacetokens.replacetokens-task.replacetokens@3
+#   displayName: 'Inject variables from kv-d-ndp (rg-dataplatform-infrastructure_ in Terraform'
+#   inputs:
+#     rootDirectory: '$(System.DefaultWorkingDirectory)'
+#     targetFiles: 'environments/**/*.tfvars'
+#     escapeType: none
+#     tokenPrefix: '__'
+#     tokenSuffix: '__'
+
+# - task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@0
+#   displayName: "Install Terraform"
+#   inputs:
+#     terraformVersion: '1.3.4'
+
+# - task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV2@2
+#   displayName: "Terraform Init"
+#   inputs:
+#     provider: 'azurerm'
+#     workingDirectory: '$(System.DefaultWorkingDirectory)'
+#     commandOptions: '-upgrade'
+#     backendServiceArm: '$(service_principal_name)'
+#     backendAzureRmResourceGroupName: '$(terraform-backend-rg-name)'
+#     backendAzureRmStorageAccountName: '$(terraform-backend-storage-account)'
+#     backendAzureRmContainerName: '$(terraform-backend-container)'
+#     backendAzureRmKey: '$(workspace_name)'
+
+# - task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV3@3
+#   displayName: 'Terraform : plan'
+#   inputs:
+#     provider: 'azurerm'
+#     command: plan
+#     workingDirectory: '$(System.DefaultWorkingDirectory)'
+#     commandOptions: '-var-file=environments/$(workspace_name).tfvars -refresh=true -detailed-exitcode '
+#     environmentServiceNameAzureRM: '$(service_principal_name)'
+
+# - task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV2@2
+#   displayName: 'Terraform : apply-auto-approve'
+#   inputs:
+#     command: apply
+#     workingDirectory: '$(System.DefaultWorkingDirectory)'
+#     commandOptions: '-auto-approve -var-file=environments/rg-d-onedataworkspace-02.tfvars'
+#     environmentServiceNameAzureRM: '$(service_principal_name)'
+#   enabled: false
+
+# - task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV2@2
+#   displayName: 'Terraform : destroy'
+#   inputs:
+#     command: destroy
+#     workingDirectory: '$(System.DefaultWorkingDirectory)/'
+#     commandOptions: '-var-file=environments/$(workspace_name).tfvars -refresh=true'
+#     environmentServiceNameAzureRM: '$(service_principal_name)'
+  # enabled: false
+
+# - task: CmdLine@2
+#   displayName: "Command Line"
+#   inputs:
+#     script: |
+#       pwd
+#       ls $(System.DefaultWorkingDirectory)
+#       git clone https://nutreco-global@dev.azure.com/nutreco-global/Nutreco%20Data%20Mesh/_git/azure-terraform-modules
+#     workingDirectory: $(Agent.BuildDirectory)
+
+# - task: GitDownloader@0
+#   inputs:
+#     RepositoryUrl: 'https://nutreco-global@dev.azure.com/nutreco-global/Nutreco%20Data%20Mesh/_git/azure-terraform-modules'
+#     BranchTag: 'main'
